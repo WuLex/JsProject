@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复利计算工具</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .calculator h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: calc(100% - 20px);
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0f7fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>复利计算工具</h2>
+        <div class="form-group">
+            <label for="principal">本金（元）:</label>
+            <input type="number" id="principal" placeholder="输入本金" required>
+        </div>
+        <div class="form-group">
+            <label for="rate">年利率（%）:</label>
+            <input type="number" id="rate" placeholder="输入年利率" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="years">投资年限（年）:</label>
+            <input type="number" id="years" placeholder="输入投资年限" required>
+        </div>
+        <button class="btn" onclick="calculateCompoundInterest()">计算</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateCompoundInterest() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const years = parseInt(document.getElementById('years').value);
+
+            if (isNaN(principal) || isNaN(rate) || isNaN(years)) {
+                document.getElementById('result').innerHTML = '请输入有效数据！';
+                return;
+            }
+
+            const amount = principal * Math.pow((1 + rate), years);
+            const interest = amount - principal;
+
+            document.getElementById('result').innerHTML = 
+                `未来价值：¥${amount.toFixed(2)}<br> 总利息：¥${interest.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
