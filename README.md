@@ -19,3 +19,7 @@ JavaScript一些项目
 ### 复利计算工具页面：
 
 ![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/calculationtool.png)
+
+### 百分比条状图：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/percentagebarchart.png)
