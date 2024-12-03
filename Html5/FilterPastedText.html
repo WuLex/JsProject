@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>过滤粘贴文本</title>
+  <style>
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-size: 16px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <h1>只显示粘贴文本中的链接</h1>
+  <textarea id="pasteBox" placeholder="请在这里粘贴文本..."></textarea>
+
+  <script>
+    document.getElementById('pasteBox').addEventListener('paste', (event) => {
+      event.preventDefault(); // 阻止默认粘贴行为
+
+      // 获取粘贴的文本
+      const clipboardData = event.clipboardData || window.clipboardData;
+      const pastedText = clipboardData.getData('text');
+
+      // 使用正则表达式提取 http(s) 链接
+      const urlPattern = /(https?:\/\/[^\s]+)/g;
+      const links = pastedText.match(urlPattern);
+
+      // 将提取的链接作为文本框的内容
+      event.target.value = links ? links.join('\n') : ''; // 如果没有链接则显示空
+    });
+  </script>
+</body>
+</html>
