@@ -16,10 +16,35 @@ JavaScript一些项目
 毛玻璃效果的可拖拽渐变色登录框
 ![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/loginpage/gradient-animation.png)
 
-### 复利计算工具页面：
+### 复利计算工具：
 
 ![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/calculationtool.png)
+
+
+### 汇率计算工具：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/exchangerate.png)
+
+### 白版工具：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/whiteboard.png)
 
 ### 百分比条状图：
 
 ![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/percentagebarchart.png)
+
+
+### youtube搜索页面：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/youtube.png)
+
+### 文字与图片水印生成工具：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/watermark/imagetextwatermarkgenerator.png)
+
+
+### 盲水印工具：
+
+![image](https://raw.githubusercontent.com/WuLex/UsefulPicture/refs/heads/main/html5/watermark/imgblindwatermark.png)
+
+
