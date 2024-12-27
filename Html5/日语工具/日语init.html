@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Vocabulary Selector</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdf6e3;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff4e6;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #d36b00;
+        }
+
+        .card-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .card {
+            padding: 12px 18px;
+            background-color: #ffddb3;
+            color: #8a4500;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .card:hover {
+            background-color: #f4a460;
+            transform: scale(1.05);
+        }
+
+        .card.selected {
+            background-color: #ff8c42;
+            color: #fff;
+        }
+
+        .output {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .textbox {
+            width: calc(100% - 40px);
+            max-width: 600px;
+            height: 50px;
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #d36b00;
+            border-radius: 5px;
+            background-color: #fffaf0;
+            color: #333;
+        }
+
+        .textbox:disabled {
+            background-color: #f8f1e9;
+            color: #777;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+
+            .textbox {
+                font-size: 16px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Japanese Vocabulary Selector</h1>
+        <div class="card-list" id="cardList">
+            <!-- 五十音图 -->
+            <!-- 清音 -->
+            <div class="card" data-char="あ" data-kana="ア" data-read="a">あ / ア</div>
+            <div class="card" data-char="い" data-kana="イ" data-read="i">い / イ</div>
+            <div class="card" data-char="う" data-kana="ウ" data-read="u">う / ウ</div>
+            <div class="card" data-char="え" data-kana="エ" data-read="e">え / エ</div>
+            <div class="card" data-char="お" data-kana="オ" data-read="o">お / オ</div>
+
+            <!-- 浊音 -->
+            <div class="card" data-char="が" data-kana="ガ" data-read="ga">が / ガ</div>
+            <div class="card" data-char="ぎ" data-kana="ギ" data-read="gi">ぎ / ギ</div>
+            <div class="card" data-char="ぐ" data-kana="グ" data-read="gu">ぐ / グ</div>
+            <div class="card" data-char="げ" data-kana="ゲ" data-read="ge">げ / ゲ</div>
+            <div class="card" data-char="ご" data-kana="ゴ" data-read="go">ご / ゴ</div>
+
+            <!-- 半浊音 -->
+            <div class="card" data-char="ぱ" data-kana="パ" data-read="pa">ぱ / パ</div>
+            <div class="card" data-char="ぴ" data-kana="ピ" data-read="pi">ぴ / ピ</div>
+            <div class="card" data-char="ぷ" data-kana="プ" data-read="pu">ぷ / プ</div>
+            <div class="card" data-char="ぺ" data-kana="ペ" data-read="pe">ぺ / ペ</div>
+            <div class="card" data-char="ぽ" data-kana="ポ" data-read="po">ぽ / ポ</div>
+
+            <!-- 拗音 -->
+            <div class="card" data-char="きゃ" data-kana="キャ" data-read="kya">きゃ / キャ</div>
+            <div class="card" data-char="きゅ" data-kana="キュ" data-read="kyu">きゅ / キュ</div>
+            <div class="card" data-char="きょ" data-kana="キョ" data-read="kyo">きょ / キョ</div>
+            <div class="card" data-char="しゃ" data-kana="シャ" data-read="sha">しゃ / シャ</div>
+            <div class="card" data-char="しゅ" data-kana="シュ" data-read="shu">しゅ / シュ</div>
+        </div>
+
+        <div class="output">
+            <input type="text" id="vocabularyOutput" class="textbox" placeholder="Hiragana Vocabulary" disabled>
+            <input type="text" id="kanaOutput" class="textbox" placeholder="Katakana Vocabulary" disabled>
+            <input type="text" id="readingOutput" class="textbox" placeholder="Reading" disabled>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const cardList = document.getElementById("cardList");
+            const vocabularyOutput = document.getElementById("vocabularyOutput");
+            const kanaOutput = document.getElementById("kanaOutput");
+            const readingOutput = document.getElementById("readingOutput");
+
+            cardList.addEventListener("click", (e) => {
+                const card = e.target.closest(".card");
+                if (!card) return;
+
+                card.classList.toggle("selected");
+                updateOutputs();
+            });
+
+            function updateOutputs() {
+                const selectedCards = document.querySelectorAll(".card.selected");
+                const vocabulary = Array.from(selectedCards).map(card => card.dataset.char).join("");
+                const kana = Array.from(selectedCards).map(card => card.dataset.kana).join("");
+                const reading = Array.from(selectedCards).map(card => card.dataset.read).join("");
+
+                vocabularyOutput.value = vocabulary;
+                kanaOutput.value = kana;
+                readingOutput.value = reading;
+            }
+        });
+    </script>
+</body>
+</html>

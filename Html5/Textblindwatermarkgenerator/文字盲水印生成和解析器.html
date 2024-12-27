@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文字盲水印生成器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>文字盲水印生成器</h2>
+    <textarea id="inputText" placeholder="输入文本..."></textarea>
+    <input type="text" id="watermarkText" placeholder="输入水印文本（比如用户ID）">
+    <button id="generateBtn">生成盲水印</button>
+    <button id="decodeBtn">解析盲水印</button>
+    <div class="output">
+      <h3>嵌入盲水印后的文本:</h3>
+      <p id="outputText"></p>
+    </div>
+    <div class="output">
+      <h3>解析出的水印文本:</h3>
+      <p id="decodedWatermark"></p>
+    </div>
+    <canvas id="canvas" width="600" height="100"></canvas>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

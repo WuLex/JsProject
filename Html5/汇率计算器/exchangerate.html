@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汇率计算器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>汇率计算器</h1>
+        <form id="currencyForm">
+            <div class="form-group">
+                <label for="amount">金额:</label>
+                <input type="number" id="amount" name="amount" placeholder="输入金额" required>
+            </div>
+            <div class="form-group">
+                <label for="fromCurrency">从货币:</label>
+                <select id="fromCurrency" name="fromCurrency">
+                    <option value="USD">美元 (USD)</option>
+                    <option value="EUR">欧元 (EUR)</option>
+                    <option value="GBP">英镑 (GBP)</option>
+                    <option value="CNY">人民币 (CNY)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="toCurrency">到货币:</label>
+                <select id="toCurrency" name="toCurrency">
+                    <option value="USD">美元 (USD)</option>
+                    <option value="EUR">欧元 (EUR)</option>
+                    <option value="GBP">英镑 (GBP)</option>
+                    <option value="CNY">人民币 (CNY)</option>
+                </select>
+            </div>
+            <button type="submit">计算</button>
+        </form>
+        
+        <div id="result" class="result">
+            <p>结果: <span id="output">0</span></p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Search</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>加密货币浏览</h1>
+            <p>搜索加密货币并查看详细信息以及价格趋势</p>
+        </header>
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="crypto-search" placeholder="Search cryptocurrency..." />
+                <div id="dropdown" class="dropdown hidden"></div>
+            </div>
+        </div>
+        <div id="crypto-info" class="crypto-info hidden">
+            <h2 id="crypto-name"></h2>
+            <div class="info-grid">
+                <p>Symbol: <span id="crypto-symbol"></span></p>
+                <p>Current Price: <span id="crypto-price"></span> USD</p>
+                <p>Market Cap: <span id="crypto-market-cap"></span> USD</p>
+                <p>24h Volume: <span id="crypto-volume"></span> USD</p>
+                <p>Circulating Supply: <span id="crypto-circulating-supply"></span></p>
+                <p>Total Supply: <span id="crypto-total-supply"></span></p>
+                <p>Max Supply: <span id="crypto-max-supply"></span></p>
+            </div>
+        </div>
+        <canvas id="price-chart" class="hidden"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

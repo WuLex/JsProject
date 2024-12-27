@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字毛笔字生成器</title>
+    <style>
+        @font-face {
+            font-family: 'MaoBiFont';
+            src: url('./LXGWZhenKai-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'AaJiuZhongXiaoFont';
+            src: url('./AaJiuZhongXiao-2.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'CQFont';
+            src: url('./上首苍穹书法体.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'XYFont';
+            src: url('./上首逍遥书法体.ttf') format('truetype');
+        }
+		@font-face {
+            font-family: 'MZDFont';
+            src: url('./maozedong.ttf') format('truetype');
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f4f4f9;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        input, select {
+            padding: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            color: #fff;
+            background: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+       #output {
+            font-size: 2.5rem;
+            color: #000;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+            margin-top: 1.5rem;
+            padding: 2rem;
+            border: 3px solid #000;
+            border-radius: 6px;
+            background: #fff;
+            min-height: 100px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            p, button {
+                font-size: 0.9rem;
+            }
+
+            input, select {
+                font-size: 0.9rem;
+            }
+
+            #output {
+                font-size: 2rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>汉字毛笔字生成器</h1>
+    <div class="form-group">
+        <p>请输入汉字：</p>
+        <input type="text" id="inputText" placeholder="输入文字" maxlength="100" />
+    </div>
+    <div class="form-group">
+        <p>选择字体：</p>
+        <select id="fontSelector">
+            <option value="MaoBiFont">毛笔字</option>
+            <option value="AaJiuZhongXiaoFont">AaJiuZhongXiao</option>
+            <option value="CQFont">苍穹书法体</option>
+			<option value="XYFont">逍遥书法体</option>
+			<option value="MZDFont">maozedong</option>
+
+        </select>
+    </div>
+    <button id="generate">生成</button>
+    <div id="output">请输入文字</div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const fontSelector = document.getElementById('fontSelector');
+        const output = document.getElementById('output');
+        const generateBtn = document.getElementById('generate');
+
+        generateBtn.addEventListener('click', () => {
+            const text = inputText.value.trim();
+            const selectedFont = fontSelector.value;
+
+            if (text) {
+                output.textContent = text;
+                output.style.fontFamily = selectedFont;
+            } else {
+                output.textContent = '请输入文字';
+                output.style.fontFamily = '';
+            }
+        });
+    </script>
+</body>
+</html>

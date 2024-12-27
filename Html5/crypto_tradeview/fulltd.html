@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>TradingView 图表</title>
+    <style>
+        #chart-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+        
+        .trading-tools {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+        }
+        
+        button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 图表容器 -->
+    <div id="chart-container"></div>
+    
+    <!-- 交易工具栏 -->
+    <div class="trading-tools">
+        <button onclick="toggleIndicator('MA')">MA均线</button>
+        <button onclick="toggleIndicator('BOLL')">布林带</button>
+        <button onclick="toggleIndicator('MACD')">MACD</button>
+        <button onclick="toggleDrawingMode('trend')">趋势线</button>
+        <button onclick="toggleDrawingMode('fibonacci')">斐波那契</button>
+    </div>
+
+    <!-- 引入 TradingView Lightweight Charts 库 -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <script>
+        // 创建图表实例
+        const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+            layout: {
+                background: { color: '#ffffff' },
+                textColor: '#333',
+            },
+            grid: {
+                vertLines: { color: '#f0f0f0' },
+                horzLines: { color: '#f0f0f0' },
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal,
+            },
+            rightPriceScale: {
+                borderColor: '#d1d4dc',
+            },
+            timeScale: {
+                borderColor: '#d1d4dc',
+            },
+        });
+
+        // 创建K线图序列
+        const candlestickSeries = chart.addCandlestickSeries({
+            upColor: '#26a69a',
+            downColor: '#ef5350',
+            borderVisible: false,
+            wickUpColor: '#26a69a',
+            wickDownColor: '#ef5350'
+        });
+
+        // 模拟历史K线数据
+        const generateHistoricalData = () => {
+            const data = [];
+            const startTime = new Date(2024, 0, 1).getTime();
+            
+            for (let i = 0; i < 100; i++) {
+                const time = startTime + i * 24 * 60 * 60 * 1000;
+                const basePrice = 100 + Math.random() * 50;
+                
+                data.push({
+                    time: time / 1000,
+                    open: basePrice,
+                    high: basePrice + Math.random() * 5,
+                    low: basePrice - Math.random() * 5,
+                    close: basePrice + (Math.random() - 0.5) * 10,
+                });
+            }
+            return data;
+        };
+
+        // 设置初始数据
+        candlestickSeries.setData(generateHistoricalData());
+
+        // 技术指标实现
+        let maSeriesVisible = false;
+        let bollSeriesVisible = false;
+        let macdSeriesVisible = false;
+        let maSeries = null;
+        let upperBollSeries = null;
+        let middleBollSeries = null;
+        let lowerBollSeries = null;
+        let macdSeries = null;
+
+        // MA均线指标
+        function calculateMA(data, period = 20) {
+            const result = [];
+            for (let i = period - 1; i < data.length; i++) {
+                const sum = data
+                    .slice(i - period + 1, i + 1)
+                    .reduce((acc, val) => acc + val.close, 0);
+                result.push({
+                    time: data[i].time,
+                    value: sum / period,
+                });
+            }
+            return result;
+        }
+
+        // 布林带指标
+        function calculateBoll(data, period = 20, multiplier = 2) {
+            const result = {
+                upper: [],
+                middle: [],
+                lower: []
+            };
+
+            for (let i = period - 1; i < data.length; i++) {
+                const slice = data.slice(i - period + 1, i + 1);
+                const ma = slice.reduce((acc, val) => acc + val.close, 0) / period;
+                
+                const squaredDiffs = slice.map(val => Math.pow(val.close - ma, 2));
+                const stdDev = Math.sqrt(squaredDiffs.reduce((acc, val) => acc + val) / period);
+                
+                result.middle.push({ time: data[i].time, value: ma });
+                result.upper.push({ time: data[i].time, value: ma + multiplier * stdDev });
+                result.lower.push({ time: data[i].time, value: ma - multiplier * stdDev });
+            }
+            
+            return result;
+        }
+
+        // MACD指标
+        function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+            const result = [];
+            // MACD计算实现...（此处省略具体计算代码）
+            return result;
+        }
+
+        // 切换指标显示
+        function toggleIndicator(indicator) {
+            const data = generateHistoricalData();
+            
+            switch (indicator) {
+                case 'MA':
+                    if (!maSeriesVisible) {
+                        if (!maSeries) {
+                            maSeries = chart.addLineSeries({
+                                color: '#2196F3',
+                                lineWidth: 2,
+                            });
+                        }
+                        maSeries.setData(calculateMA(data));
+                        maSeriesVisible = true;
+                    } else {
+                        if (maSeries) {
+                            chart.removeSeries(maSeries);
+                            maSeries = null;
+                        }
+                        maSeriesVisible = false;
+                    }
+                    break;
+
+                case 'BOLL':
+                    if (!bollSeriesVisible) {
+                        const bollData = calculateBoll(data);
+                        
+                        if (!upperBollSeries) {
+                            upperBollSeries = chart.addLineSeries({
+                                color: '#26a69a',
+                                lineWidth: 1,
+                            });
+                        }
+                        if (!middleBollSeries) {
+                            middleBollSeries = chart.addLineSeries({
+                                color: '#2196F3',
+                                lineWidth: 1,
+                            });
+                        }
+                        if (!lowerBollSeries) {
+                            lowerBollSeries = chart.addLineSeries({
+                                color: '#ef5350',
+                                lineWidth: 1,
+                            });
+                        }
+                        
+                        upperBollSeries.setData(bollData.upper);
+                        middleBollSeries.setData(bollData.middle);
+                        lowerBollSeries.setData(bollData.lower);
+                        
+                        bollSeriesVisible = true;
+                    } else {
+                        if (upperBollSeries) {
+                            chart.removeSeries(upperBollSeries);
+                            upperBollSeries = null;
+                        }
+                        if (middleBollSeries) {
+                            chart.removeSeries(middleBollSeries);
+                            middleBollSeries = null;
+                        }
+                        if (lowerBollSeries) {
+                            chart.removeSeries(lowerBollSeries);
+                            lowerBollSeries = null;
+                        }
+                        bollSeriesVisible = false;
+                    }
+                    break;
+
+                case 'MACD':
+                    // MACD指标实现...
+                    break;
+            }
+        }
+
+        // 绘图工具状态
+        let currentDrawingMode = null;
+
+        // 切换绘图模式
+        function toggleDrawingMode(mode) {
+            if (currentDrawingMode === mode) {
+                currentDrawingMode = null;
+                // 禁用绘图模式
+                chart.applyOptions({
+                    handleScale: true,
+                    handleScroll: true,
+                });
+            } else {
+                currentDrawingMode = mode;
+                // 启用绘图模式
+                chart.applyOptions({
+                    handleScale: false,
+                    handleScroll: false,
+                });
+                
+                // 根据不同模式设置相应的绘图处理
+                switch (mode) {
+                    case 'trend':
+                        // 实现趋势线绘制逻辑
+                        break;
+                    case 'fibonacci':
+                        // 实现斐波那契回调线绘制逻辑
+                        break;
+                }
+            }
+        }
+
+        // 响应式调整
+        window.addEventListener('resize', () => {
+            chart.applyOptions({
+                width: document.getElementById('chart-container').clientWidth,
+                height: document.getElementById('chart-container').clientHeight,
+            });
+        });
+    </script>
+</body>
+</html>

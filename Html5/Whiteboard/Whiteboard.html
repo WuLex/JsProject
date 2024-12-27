@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiteboard</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+        canvas {
+            display: block;
+            cursor: crosshair; /* Default cursor for drawing */
+        }
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #controls button {
+            margin-right: 5px;
+            padding: 5px 10px;
+        }
+        #controls input[type="color"] {
+            margin-left: 10px;
+        }
+        #eraserSize {
+            width: 50px;
+        }
+        #eraser-preview {
+            position: absolute;
+            pointer-events: none;
+            border: 1px solid gray;
+            border-radius: 50%;
+            display: none;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <button id="draw">绘画</button>
+    <button id="erase">擦除</button>
+    <input type="color" id="colorPicker" value="#000000" title="Choose Drawing Color">
+    <label for="eraserSize">橡皮擦大小:</label>
+    <input type="range" id="eraserSize" min="5" max="50" value="10">
+    <button id="clear">清除</button>
+</div>
+
+<!-- Canvas element for the whiteboard -->
+<canvas id="whiteboard"></canvas>
+<div id="eraser-preview"></div>
+
+<script>
+    // 获取画布元素和其2D上下文
+    const canvas = document.getElementById('whiteboard');
+    const ctx = canvas.getContext('2d');
+    const eraserPreview = document.getElementById('eraser-preview'); // 橡皮擦预览元素
+
+    // 将画布的大小调整为窗口大小
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 状态变量
+    let isDrawing = false; // 是否正在绘制
+    let currentTool = 'draw'; // 当前工具（"draw"或"erase"）
+    let color = '#000000'; // 当前画笔颜色
+    let eraserSize = 10; // 橡皮擦大小
+
+    // 为鼠标事件添加监听器
+    canvas.addEventListener('mousedown', startDrawing); // 鼠标按下开始绘制
+    canvas.addEventListener('mousemove', (e) => {
+        updateEraserPreview(e); // 更新橡皮擦预览
+        draw(e); // 绘制内容
+    });
+    canvas.addEventListener('mouseup', stopDrawing); // 鼠标抬起停止绘制
+    canvas.addEventListener('mouseout', stopDrawing); // 鼠标移出画布停止绘制
+
+    // 窗口大小调整时更新画布尺寸
+    window.addEventListener('resize', () => {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // 保存当前画布内容
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        ctx.putImageData(imageData, 0, 0); // 恢复画布内容
+    });
+
+    // 工具栏按钮的事件监听器
+    document.getElementById('draw').addEventListener('click', () => currentTool = 'draw'); // 切换到画笔工具
+    document.getElementById('erase').addEventListener('click', () => currentTool = 'erase'); // 切换到橡皮擦工具
+    document.getElementById('colorPicker').addEventListener('input', (e) => color = e.target.value); // 更改画笔颜色
+    document.getElementById('eraserSize').addEventListener('input', (e) => {
+        eraserSize = e.target.value; // 更改橡皮擦大小
+        updateEraserPreviewSize(); // 更新橡皮擦预览大小
+    });
+    document.getElementById('clear').addEventListener('click', clearCanvas); // 清空画布
+
+    // 开始绘制
+    function startDrawing(e) {
+        isDrawing = true; // 标记为正在绘制
+        ctx.beginPath(); // 开始新路径
+        ctx.moveTo(e.clientX, e.clientY); // 将路径移动到鼠标当前位置
+    }
+
+    // 在画布上绘制
+    function draw(e) {
+        if (!isDrawing) return; // 如果未开始绘制，直接返回
+
+        ctx.lineTo(e.clientX, e.clientY); // 将路径延伸到鼠标当前位置
+
+        if (currentTool === 'draw') { // 如果是画笔工具
+            ctx.strokeStyle = color; // 设置画笔颜色
+            ctx.lineWidth = 2; // 设置画笔线宽
+            ctx.globalCompositeOperation = 'source-over'; // 正常绘制模式
+        } else if (currentTool === 'erase') { // 如果是橡皮擦工具
+            ctx.strokeStyle = 'rgba(0,0,0,1)'; // 设置橡皮擦的颜色（实际不影响）
+            ctx.lineWidth = eraserSize; // 设置橡皮擦大小
+            ctx.globalCompositeOperation = 'destination-out'; // 擦除模式
+        }
+
+        ctx.stroke(); // 绘制路径
+    }
+
+    // 停止绘制
+    function stopDrawing() {
+        isDrawing = false; // 标记为停止绘制
+        ctx.closePath(); // 结束当前路径
+    }
+
+    // 清空画布
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布区域
+    }
+
+    // 更新橡皮擦预览的位置和显示
+    function updateEraserPreview(e) {
+        if (currentTool === 'erase') { // 仅当当前工具是橡皮擦时显示预览
+            eraserPreview.style.display = 'block'; // 显示橡皮擦预览
+            eraserPreview.style.width = `${eraserSize}px`; // 设置预览宽度
+            eraserPreview.style.height = `${eraserSize}px`; // 设置预览高度
+            eraserPreview.style.left = `${e.clientX - eraserSize / 2}px`; // 设置预览水平位置
+            eraserPreview.style.top = `${e.clientY - eraserSize / 2}px`; // 设置预览垂直位置
+        } else {
+            eraserPreview.style.display = 'none'; // 隐藏预览
+        }
+    }
+
+    // 更新橡皮擦预览大小
+    function updateEraserPreviewSize() {
+        eraserPreview.style.width = `${eraserSize}px`; // 设置预览宽度
+        eraserPreview.style.height = `${eraserSize}px`; // 设置预览高度
+    }
+</script>
+
+</body>
+</html>

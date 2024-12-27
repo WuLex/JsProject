@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>盲水印工具（仅支持英文）</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>盲水印工具（仅支持英文）</h1>
+    <div>
+      <label for="backgroundImage">选择背景图片:</label>
+      <input type="file" id="backgroundImage" accept="image/*">
+    </div>
+    <div>
+      <label for="watermarkText">文字水印:</label>
+      <input type="text" id="watermarkText" placeholder="输入水印文字,末尾是数字">
+    </div>
+    <button id="embedWatermark">嵌入水印</button>
+    <button id="extractWatermark">提取水印</button>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const backgroundImageInput = document.getElementById("backgroundImage");
+    const watermarkTextInput = document.getElementById("watermarkText");
+    const embedButton = document.getElementById("embedWatermark");
+    const extractButton = document.getElementById("extractWatermark");
+
+    let backgroundImage = null;
+
+    // 加载背景图片
+    backgroundImageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          backgroundImage = new Image();
+          backgroundImage.onload = () => {
+            canvas.width = backgroundImage.width;
+            canvas.height = backgroundImage.height;
+            ctx.drawImage(backgroundImage, 0, 0);
+          };
+          backgroundImage.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 嵌入水印
+    embedButton.addEventListener("click", () => {
+      if (!backgroundImage) {
+        alert("请先上传背景图片！");
+        return;
+      }
+      const watermarkText = watermarkTextInput.value.trim();
+      if (!watermarkText) {
+        alert("请输入水印文字！");
+        return;
+      }
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const pixels = imageData.data;
+
+      // 将水印文字转为二进制数据（仅支持英文），并添加终止标记
+      const watermarkBinary = textToBinary(watermarkText) + "00000000"; // 使用 NULL 作为终止标记
+
+      // 嵌入水印到像素最低位
+      let watermarkIndex = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        if (watermarkIndex < watermarkBinary.length) {
+          pixels[i] = (pixels[i] & 0xFE) | parseInt(watermarkBinary[watermarkIndex], 10); // Red通道
+          watermarkIndex++;
+        } else {
+          break;
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      alert("水印嵌入成功！");
+    });
+
+    // 提取水印
+    extractButton.addEventListener("click", () => {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const pixels = imageData.data;
+
+      // 提取最低位的水印数据
+      let extractedBinary = "";
+      for (let i = 0; i < pixels.length; i += 4) {
+        extractedBinary += (pixels[i] & 1).toString(); // Red通道最低位
+      }
+
+      // 截断到终止标记
+      const endIndex = extractedBinary.indexOf("00000000");
+      if (endIndex !== -1) {
+        extractedBinary = extractedBinary.substring(0, endIndex);
+      } else {
+        alert("未检测到水印！");
+        return;
+      }
+
+      // 转回文字
+      const extractedText = binaryToText(extractedBinary);
+      alert(`提取的水印文字: ${extractedText}`);
+    });
+
+    // 将文字转为二进制，支持英文
+    function textToBinary(text) {
+      return text
+        .split('')
+        .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
+        .join('');
+    }
+
+    // 将二进制转回文字，支持英文
+    function binaryToText(binary) {
+      const bytes = binary.match(/.{1,8}/g) || [];
+      return bytes
+        .map(byte => String.fromCharCode(parseInt(byte, 2)))
+        .join('');
+    }
+  </script>
+</body>
+</html>

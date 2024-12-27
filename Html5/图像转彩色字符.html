@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Color Characters</title>
+    <style>
+        /* 页面整体样式设置 */
+        body {
+            font-family: 'Arial', sans-serif; /* 使用现代无衬线字体 */
+            background-color: #f4f4f9; /* 设置浅灰色背景，柔和视觉 */
+            color: #333; /* 字体颜色为深灰色，提升可读性 */
+            margin: 0; /* 去除默认边距 */
+            padding: 0; /* 去除默认内边距 */
+            display: flex; /* 使用Flex布局 */
+            flex-direction: column; /* 布局方向为列 */
+            align-items: center; /* 水平居中对齐 */
+            justify-content: center; /* 垂直居中对齐 */
+            min-height: 100vh; /* 占满整个视窗高度 */
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: 2rem; /* 设置字体大小 */
+            color: #444; /* 标题颜色稍浅，突出整体协调 */
+            margin-bottom: 20px; /* 标题底部外边距 */
+        }
+
+        /* 控制区域样式 */
+        #controls {
+            display: flex; /* 使用Flex布局 */
+            flex-direction: column; /* 布局方向为列 */
+            align-items: center; /* 居中对齐 */
+            gap: 15px; /* 控件间的间距 */
+            margin-bottom: 30px; /* 控制区域底部外边距 */
+            background: #fff; /* 控制区域背景为白色 */
+            padding: 20px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 设置阴影效果 */
+        }
+
+        /* 文件输入框样式 */
+        input[type="file"] {
+            font-size: 1rem; /* 字体大小 */
+            padding: 8px 12px; /* 内边距 */
+            border: 1px solid #ccc; /* 边框颜色 */
+            border-radius: 4px; /* 圆角边框 */
+            background-color: #fafafa; /* 浅灰色背景 */
+            cursor: pointer; /* 鼠标移上显示为手型 */
+        }
+
+        /* 缩略图样式 */
+        #thumbnail {
+            max-width: 180px; /* 最大宽度 */
+            max-height: 180px; /* 最大高度 */
+            border: 2px solid #ddd; /* 边框颜色 */
+            border-radius: 8px; /* 圆角边框 */
+        }
+
+        /* 按钮样式 */
+        button {
+            font-size: 1rem; /* 字体大小 */
+            padding: 10px 20px; /* 内边距 */
+            background-color: #007BFF; /* 按钮背景颜色为蓝色 */
+            color: #fff; /* 字体颜色为白色 */
+            border: none; /* 无边框 */
+            border-radius: 4px; /* 圆角边框 */
+            cursor: pointer; /* 鼠标移上显示为手型 */
+            transition: background-color 0.3s ease; /* 添加背景颜色变化过渡效果 */
+        }
+
+        /* 按钮悬停样式 */
+        button:hover {
+            background-color: #0056b3; /* 鼠标悬停时按钮颜色变深 */
+        }
+
+        /* 输出区域样式 */
+        #output {
+            font-family: monospace; /* 使用等宽字体，便于字符对齐 */
+            white-space: pre-wrap; /* 保持换行 */
+            line-height: 6px; /* 行高较小以适应字符图 */
+            background: #000; /* 背景颜色为黑色 */
+            color: #fff; /* 默认字体颜色为白色 */
+            padding: 10px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            overflow-x: auto; /* 水平滚动条 */
+            max-width: 90%; /* 最大宽度为90%视窗宽度 */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* 内阴影效果 */
+        }
+    </style>
+</head>
+<body>
+    <h1>图像转彩色字符</h1>
+    <div id="controls">
+        <!-- 文件选择输入框，用户选择要处理的图片文件 -->
+        <input type="file" id="imageLoader" accept="image/*">
+        <!-- 图片缩略图预览区域 -->
+        <img id="thumbnail" src="" alt="Thumbnail Preview">
+        <!-- 转换按钮，点击后将图片转为字符图 -->
+        <button id="convertButton">转换成字符图</button>
+    </div>
+    <!-- 显示转换后的字符图输出 -->
+    <pre id="output"></pre>
+
+    <script>
+        // 定义用于表示像素强度的字符集，按强度从高到低排序
+        const CHARACTERS = '@#&$%*!o:;.';
+
+        // 获取页面元素
+        const imageLoader = document.getElementById('imageLoader'); // 文件选择控件
+        const thumbnail = document.getElementById('thumbnail'); // 图片缩略图
+        const convertButton = document.getElementById('convertButton'); // 转换按钮
+
+        let loadedImage = null; // 用于保存加载的图片对象
+
+        // 监听文件选择事件，处理用户选择的图片
+        imageLoader.addEventListener('change', handleImage);
+        // 监听按钮点击事件，触发图片转换
+        convertButton.addEventListener('click', () => {
+            if (loadedImage) {
+                renderImageToText(loadedImage); // 调用转换函数
+            } else {
+                alert('Please upload an image first!'); // 提示用户先上传图片
+            }
+        });
+
+        // 处理用户选择的图片文件
+        function handleImage(event) {
+            const file = event.target.files[0]; // 获取选中的文件
+            if (!file) return; // 如果未选择文件，直接返回
+
+            const reader = new FileReader(); // 创建文件读取器对象
+            reader.onload = function(e) {
+                const img = new Image(); // 创建图片对象
+                img.onload = function() {
+                    thumbnail.src = img.src; // 设置缩略图预览
+                    loadedImage = img; // 保存加载的图片对象
+                };
+                img.src = e.target.result; // 设置图片源为文件内容
+            };
+            reader.readAsDataURL(file); // 将文件读取为Data URL
+        }
+
+        // 将图片转换为字符图并显示
+        function renderImageToText(img) {
+            const canvas = document.createElement('canvas'); // 创建临时Canvas对象
+            const ctx = canvas.getContext('2d'); // 获取Canvas绘图上下文
+            const scale = 0.2; // 缩放比例，降低分辨率
+
+            // 设置Canvas尺寸为缩放后的图片尺寸
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // 绘制缩放后的图片
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // 获取图片像素数据
+            const { data, width, height } = imageData; // 提取像素数据、宽度和高度
+
+            let outputHTML = ''; // 用于保存生成的HTML内容
+
+            // 遍历每个像素
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4; // 计算像素索引
+                    const r = data[index]; // 获取红色通道值
+                    const g = data[index + 1]; // 获取绿色通道值
+                    const b = data[index + 2]; // 获取蓝色通道值
+
+                    // 计算灰度强度值
+                    const intensity = (r + g + b) / 3;
+                    // 根据强度值选择字符
+                    const charIndex = Math.floor((intensity / 255) * (CHARACTERS.length - 1));
+                    const char = CHARACTERS[charIndex];
+
+                    // 将字符设置为对应的颜色并添加到输出HTML
+                    outputHTML += `<span style="color: rgb(${r}, ${g}, ${b})">${char}</span>`;
+                }
+                outputHTML += '<br>'; // 每行结束后添加换行符
+            }
+
+            // 将生成的HTML内容插入输出区域
+            document.getElementById('output').innerHTML = outputHTML;
+        }
+    </script>
+</body>
+</html>

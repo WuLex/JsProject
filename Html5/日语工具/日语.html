@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Vocabulary Selector</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdf6e3;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff4e6;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #d36b00;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            color: #8a4500;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #ffddb3;
+        }
+
+        .card-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .card {
+            padding: 10px 15px;
+            background-color: #ffddb3;
+            color: #8a4500;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .card:hover {
+            background-color: #f4a460;
+            transform: scale(1.05);
+        }
+
+        .card.selected {
+            background-color: #ff8c42;
+            color: #fff;
+        }
+
+        .output {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .textbox {
+            width: calc(100% - 40px);
+            max-width: 600px;
+            height: 50px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #d36b00;
+            border-radius: 5px;
+            background-color: #fffaf0;
+        }
+
+        .clear-button {
+            padding: 10px 20px;
+            background-color: #d36b00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .clear-button:hover {
+            background-color: #b35900;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Japanese Vocabulary Selector</h1>
+        
+        <div class="section">
+            <div class="section-title">清音 (Basic Sounds)</div>
+            <div class="card-list" id="basicSounds"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">浊音 (Voiced Sounds)</div>
+            <div class="card-list" id="voicedSounds"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">半浊音 (Semi-Voiced Sounds)</div>
+            <div class="card-list" id="semiVoicedSounds"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">拗音 (Contracted Sounds)</div>
+            <div class="card-list" id="contractedSounds"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">其他 (Others)</div>
+            <div class="card-list" id="otherSounds"></div>
+        </div>
+
+        <div class="output">
+            <input type="text" id="hiraganaOutput" class="textbox" placeholder="Hiragana" readonly>
+            <input type="text" id="katakanaOutput" class="textbox" placeholder="Katakana" readonly>
+            <input type="text" id="romajiOutput" class="textbox" placeholder="Romaji" readonly>
+            <button id="clearButton" class="clear-button">Clear Selection</button>
+        </div>
+    </div>
+
+    <script>
+        const kanaData = {
+            basicSounds: [
+                // あ行
+                {char: 'あ', kana: 'ア', read: 'a'}, {char: 'い', kana: 'イ', read: 'i'},
+                {char: 'う', kana: 'ウ', read: 'u'}, {char: 'え', kana: 'エ', read: 'e'},
+                {char: 'お', kana: 'オ', read: 'o'},
+                // か行
+                {char: 'か', kana: 'カ', read: 'ka'}, {char: 'き', kana: 'キ', read: 'ki'},
+                {char: 'く', kana: 'ク', read: 'ku'}, {char: 'け', kana: 'ケ', read: 'ke'},
+                {char: 'こ', kana: 'コ', read: 'ko'},
+                // さ行
+                {char: 'さ', kana: 'サ', read: 'sa'}, {char: 'し', kana: 'シ', read: 'shi'},
+                {char: 'す', kana: 'ス', read: 'su'}, {char: 'せ', kana: 'セ', read: 'se'},
+                {char: 'そ', kana: 'ソ', read: 'so'},
+                // た行
+                {char: 'た', kana: 'タ', read: 'ta'}, {char: 'ち', kana: 'チ', read: 'chi'},
+                {char: 'つ', kana: 'ツ', read: 'tsu'}, {char: 'て', kana: 'テ', read: 'te'},
+                {char: 'と', kana: 'ト', read: 'to'},
+                // な行
+                {char: 'な', kana: 'ナ', read: 'na'}, {char: 'に', kana: 'ニ', read: 'ni'},
+                {char: 'ぬ', kana: 'ヌ', read: 'nu'}, {char: 'ね', kana: 'ネ', read: 'ne'},
+                {char: 'の', kana: 'ノ', read: 'no'},
+                // は行
+                {char: 'は', kana: 'ハ', read: 'ha'}, {char: 'ひ', kana: 'ヒ', read: 'hi'},
+                {char: 'ふ', kana: 'フ', read: 'fu'}, {char: 'へ', kana: 'ヘ', read: 'he'},
+                {char: 'ほ', kana: 'ホ', read: 'ho'},
+                // ま行
+                {char: 'ま', kana: 'マ', read: 'ma'}, {char: 'み', kana: 'ミ', read: 'mi'},
+                {char: 'む', kana: 'ム', read: 'mu'}, {char: 'め', kana: 'メ', read: 'me'},
+                {char: 'も', kana: 'モ', read: 'mo'},
+                // や行
+                {char: 'や', kana: 'ヤ', read: 'ya'}, {char: 'ゆ', kana: 'ユ', read: 'yu'},
+                {char: 'よ', kana: 'ヨ', read: 'yo'},
+                // ら行
+                {char: 'ら', kana: 'ラ', read: 'ra'}, {char: 'り', kana: 'リ', read: 'ri'},
+                {char: 'る', kana: 'ル', read: 'ru'}, {char: 'れ', kana: 'レ', read: 're'},
+                {char: 'ろ', kana: 'ロ', read: 'ro'},
+                // わ行
+                {char: 'わ', kana: 'ワ', read: 'wa'}, {char: 'を', kana: 'ヲ', read: 'wo'}
+            ],
+            voicedSounds: [
+                // が行
+                {char: 'が', kana: 'ガ', read: 'ga'}, {char: 'ぎ', kana: 'ギ', read: 'gi'},
+                {char: 'ぐ', kana: 'グ', read: 'gu'}, {char: 'げ', kana: 'ゲ', read: 'ge'},
+                {char: 'ご', kana: 'ゴ', read: 'go'},
+                // ざ行
+                {char: 'ざ', kana: 'ザ', read: 'za'}, {char: 'じ', kana: 'ジ', read: 'ji'},
+                {char: 'ず', kana: 'ズ', read: 'zu'}, {char: 'ぜ', kana: 'ゼ', read: 'ze'},
+                {char: 'ぞ', kana: 'ゾ', read: 'zo'},
+                // だ行
+                {char: 'だ', kana: 'ダ', read: 'da'}, {char: 'ぢ', kana: 'ヂ', read: 'ji'},
+                {char: 'づ', kana: 'ヅ', read: 'zu'}, {char: 'で', kana: 'デ', read: 'de'},
+                {char: 'ど', kana: 'ド', read: 'do'},
+                // ば行
+                {char: 'ば', kana: 'バ', read: 'ba'}, {char: 'び', kana: 'ビ', read: 'bi'},
+                {char: 'ぶ', kana: 'ブ', read: 'bu'}, {char: 'べ', kana: 'ベ', read: 'be'},
+                {char: 'ぼ', kana: 'ボ', read: 'bo'}
+            ],
+            semiVoicedSounds: [
+                {char: 'ぱ', kana: 'パ', read: 'pa'}, {char: 'ぴ', kana: 'ピ', read: 'pi'},
+                {char: 'ぷ', kana: 'プ', read: 'pu'}, {char: 'ぺ', kana: 'ペ', read: 'pe'},
+                {char: 'ぽ', kana: 'ポ', read: 'po'}
+            ],
+            contractedSounds: [
+                // きゃ行
+                {char: 'きゃ', kana: 'キャ', read: 'kya'}, {char: 'きゅ', kana: 'キュ', read: 'kyu'},
+                {char: 'きょ', kana: 'キョ', read: 'kyo'},
+                // しゃ行
+                {char: 'しゃ', kana: 'シャ', read: 'sha'}, {char: 'しゅ', kana: 'シュ', read: 'shu'},
+                {char: 'しょ', kana: 'ショ', read: 'sho'},
+                // ちゃ行
+                {char: 'ちゃ', kana: 'チャ', read: 'cha'}, {char: 'ちゅ', kana: 'チュ', read: 'chu'},
+                {char: 'ちょ', kana: 'チョ', read: 'cho'},
+                // にゃ行
+                {char: 'にゃ', kana: 'ニャ', read: 'nya'}, {char: 'にゅ', kana: 'ニュ', read: 'nyu'},
+                {char: 'にょ', kana: 'ニョ', read: 'nyo'},
+                // ひゃ行
+                {char: 'ひゃ', kana: 'ヒャ', read: 'hya'}, {char: 'ひゅ', kana: 'ヒュ', read: 'hyu'},
+                {char: 'ひょ', kana: 'ヒョ', read: 'hyo'},
+                // みゃ行
+                {char: 'みゃ', kana: 'ミャ', read: 'mya'}, {char: 'みゅ', kana: 'ミュ', read: 'myu'},
+                {char: 'みょ', kana: 'ミョ', read: 'myo'},
+                // りゃ行
+                {char: 'りゃ', kana: 'リャ', read: 'rya'}, {char: 'りゅ', kana: 'リュ', read: 'ryu'},
+                {char: 'りょ', kana: 'リョ', read: 'ryo'},
+                // ぎゃ行
+                {char: 'ぎゃ', kana: 'ギャ', read: 'gya'}, {char: 'ぎゅ', kana: 'ギュ', read: 'gyu'},
+                {char: 'ぎょ', kana: 'ギョ', read: 'gyo'},
+                // じゃ行
+                {char: 'じゃ', kana: 'ジャ', read: 'ja'}, {char: 'じゅ', kana: 'ジュ', read: 'ju'},
+                {char: 'じょ', kana: 'ジョ', read: 'jo'},
+				// びゃ行
+                {char: 'びゃ', kana: 'ビャ', read: 'bya'}, {char: 'びゅ', kana: 'ビュ', read: 'byu'},
+                {char: 'びょ', kana: 'ビョ', read: 'byo'},
+                // ぴゃ行
+                {char: 'ぴゃ', kana: 'ピャ', read: 'pya'}, {char: 'ぴゅ', kana: 'ピュ', read: 'pyu'},
+                {char: 'ぴょ', kana: 'ピョ', read: 'pyo'}
+            ],
+            otherSounds: [
+                {char: 'ん', kana: 'ン', read: 'n'},
+                {char: 'っ', kana: 'ッ', read: '(pause)'},
+                {char: 'ー', kana: 'ー', read: '(long)'}
+            ]
+        };
+
+        function createCard(data) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('data-char', data.char);
+            card.setAttribute('data-kana', data.kana);
+            card.setAttribute('data-read', data.read);
+            card.textContent = `${data.char} / ${data.kana}`;
+            return card;
+        }
+
+        function initializeSection(sectionId, data) {
+            const section = document.getElementById(sectionId);
+            data.forEach(item => {
+                section.appendChild(createCard(item));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize all sections
+            initializeSection('basicSounds', kanaData.basicSounds);
+            initializeSection('voicedSounds', kanaData.voicedSounds);
+            initializeSection('semiVoicedSounds', kanaData.semiVoicedSounds);
+            initializeSection('contractedSounds', kanaData.contractedSounds);
+            initializeSection('otherSounds', kanaData.otherSounds);
+
+            const hiraganaOutput = document.getElementById('hiraganaOutput');
+            const katakanaOutput = document.getElementById('katakanaOutput');
+            const romajiOutput = document.getElementById('romajiOutput');
+            const clearButton = document.getElementById('clearButton');
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    card.classList.toggle('selected');
+                    updateOutputs();
+                });
+            });
+
+            clearButton.addEventListener('click', () => {
+                document.querySelectorAll('.card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                updateOutputs();
+            });
+
+            function updateOutputs() {
+                const selectedCards = document.querySelectorAll('.card.selected');
+                const hiragana = Array.from(selectedCards)
+                    .map(card => card.dataset.char)
+                    .join('');
+                const katakana = Array.from(selectedCards)
+                    .map(card => card.dataset.kana)
+                    .join('');
+                const romaji = Array.from(selectedCards)
+                    .map(card => card.dataset.read)
+                    .join('');
+
+                hiraganaOutput.value = hiragana;
+                katakanaOutput.value = katakana;
+                romajiOutput.value = romaji;
+            }
+        });
+    </script>
+</body>
+</html>

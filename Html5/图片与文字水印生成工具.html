@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片与文字水印</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    input, button, select {
+      margin: 10px 0;
+      padding: 8px;
+      font-size: 16px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .controls > div {
+      flex: 1 1 calc(50% - 20px);
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .position-controls button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>图片与文字水印生成工具</h1>
+    <div class="controls">
+      <div>
+        <label for="backgroundImage">选择背景图片:</label>
+        <input type="file" id="backgroundImage" accept="image/*">
+      </div>
+      <div>
+        <label for="watermarkText">文字水印:</label>
+        <input type="text" id="watermarkText" placeholder="输入水印文字">
+      </div>
+      <div>
+        <label for="watermarkImage">上传图片水印:</label>
+        <input type="file" id="watermarkImage" accept="image/*">
+      </div>
+      <div>
+        <label for="opacity">水印透明度:</label>
+        <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.5">
+      </div>
+      <div>
+        <label for="scale">水印缩放比例:</label>
+        <input type="range" id="scale" min="0.1" max="2" step="0.1" value="1">
+      </div>
+      <div>
+        <label for="textColor">文字颜色:</label>
+        <input type="color" id="textColor" value="#ffffff">
+      </div>
+    </div>
+
+    <div class="position-controls">
+      <h3>文字水印位置调整</h3>
+      <button id="moveUp">上移</button>
+      <button id="moveDown">下移</button>
+      <button id="moveLeft">左移</button>
+      <button id="moveRight">右移</button>
+      <div>
+        <label for="textX">X 坐标:</label>
+        <input type="number" id="textX" value="100">
+        <label for="textY">Y 坐标:</label>
+        <input type="number" id="textY" value="100">
+      </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <button id="download">下载生成图片</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const backgroundImageInput = document.getElementById("backgroundImage");
+    const watermarkTextInput = document.getElementById("watermarkText");
+    const watermarkImageInput = document.getElementById("watermarkImage");
+    const opacityInput = document.getElementById("opacity");
+    const scaleInput = document.getElementById("scale");
+    const textColorInput = document.getElementById("textColor");
+    const textXInput = document.getElementById("textX");
+    const textYInput = document.getElementById("textY");
+    const moveUpButton = document.getElementById("moveUp");
+    const moveDownButton = document.getElementById("moveDown");
+    const moveLeftButton = document.getElementById("moveLeft");
+    const moveRightButton = document.getElementById("moveRight");
+    const downloadButton = document.getElementById("download");
+
+    let backgroundImage = null;
+    let watermarkImage = null;
+    let textX = parseInt(textXInput.value, 10);
+    let textY = parseInt(textYInput.value, 10);
+
+    // 加载背景图片
+    backgroundImageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          backgroundImage = new Image();
+          backgroundImage.onload = drawCanvas;
+          backgroundImage.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 加载水印图片
+    watermarkImageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          watermarkImage = new Image();
+          watermarkImage.onload = drawCanvas;
+          watermarkImage.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 绘制Canvas内容
+    function drawCanvas() {
+      if (!backgroundImage) return;
+
+      // 设置Canvas大小与背景图片一致
+      canvas.width = backgroundImage.width;
+      canvas.height = backgroundImage.height;
+
+      // 绘制背景图片
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundImage, 0, 0);
+
+      // 绘制文字水印
+      const watermarkText = watermarkTextInput.value.trim();
+      if (watermarkText) {
+        ctx.globalAlpha = opacityInput.value;
+        ctx.font = `${30 * scaleInput.value}px Arial`;
+        ctx.fillStyle = textColorInput.value;
+        ctx.fillText(watermarkText, textX, textY);
+        ctx.globalAlpha = 1.0;
+      }
+
+      // 绘制图片水印
+      if (watermarkImage) {
+        ctx.globalAlpha = opacityInput.value;
+        const scaledWidth = watermarkImage.width * scaleInput.value;
+        const scaledHeight = watermarkImage.height * scaleInput.value;
+        ctx.drawImage(
+          watermarkImage,
+          canvas.width / 2 - scaledWidth / 2,
+          canvas.height / 2 - scaledHeight / 2,
+          scaledWidth,
+          scaledHeight
+        );
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    // 输入事件监听
+    watermarkTextInput.addEventListener("input", drawCanvas);
+    opacityInput.addEventListener("input", drawCanvas);
+    scaleInput.addEventListener("input", drawCanvas);
+    textColorInput.addEventListener("input", drawCanvas);
+    textXInput.addEventListener("input", () => {
+      textX = parseInt(textXInput.value, 10);
+      drawCanvas();
+    });
+    textYInput.addEventListener("input", () => {
+      textY = parseInt(textYInput.value, 10);
+      drawCanvas();
+    });
+
+    // 调整水印位置
+    moveUpButton.addEventListener("click", () => {
+      textY -= 10;
+      textYInput.value = textY;
+      drawCanvas();
+    });
+    moveDownButton.addEventListener("click", () => {
+      textY += 10;
+      textYInput.value = textY;
+      drawCanvas();
+    });
+    moveLeftButton.addEventListener("click", () => {
+      textX -= 10;
+      textXInput.value = textX;
+      drawCanvas();
+    });
+    moveRightButton.addEventListener("click", () => {
+      textX += 10;
+      textXInput.value = textX;
+      drawCanvas();
+    });
+
+    // 下载图片
+    downloadButton.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "watermarked-image.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>

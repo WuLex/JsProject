@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightweight Charts Example</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <div id="chart" style="width: 600px; height: 300px;"></div>
+    <script>
+        const chartElement = document.getElementById('chart');
+
+        const chart = LightweightCharts.createChart(chartElement, {
+            width: 600,
+            height: 300,
+            layout: {
+                backgroundColor: '#ffffff',
+                textColor: '#000000',
+            },
+            grid: {
+                vertLines: { color: '#eeeeee' },
+                horzLines: { color: '#eeeeee' },
+            },
+        });
+
+        const lineSeries = chart.addLineSeries();
+        lineSeries.setData([
+            { time: '2024-12-20', value: 100 },
+            { time: '2024-12-21', value: 102 },
+            { time: '2024-12-22', value: 104 },
+            { time: '2024-12-23', value: 103 },
+            { time: '2024-12-24', value: 105 },
+        ]);
+    </script>
+</body>
+</html>
